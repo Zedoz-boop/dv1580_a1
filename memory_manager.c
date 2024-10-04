@@ -17,7 +17,8 @@ void mem_init(size_t size) {
     head = (mem_struct *)malloc(sizeof(mem_struct) * size);
     
     if (head == NULL) {
-        printf("Failed to initialize memory manager.\n");
+        //debug
+        // printf("Failed to initialize memory manager.\n");
         return;
     }
     
@@ -25,7 +26,8 @@ void mem_init(size_t size) {
     head->memaddress = (char*)head + sizeof(mem_struct);
     
     if (head->memaddress == NULL) {
-        printf("Failed to allocate managed memory.\n");
+        //debug
+        // printf("Failed to allocate managed memory.\n");
         free(head);
         head = NULL;
         return;
@@ -34,12 +36,14 @@ void mem_init(size_t size) {
     head->next = NULL;
     head->available = true;
     head->size = size;
-    printf("Memory initialized with size %zu bytes.\n", size);
+    //debug
+    // printf("Memory initialized with size %zu bytes.\n", size);
 }
 
 void *mem_alloc(size_t size) {
     if (size == 0) {
-        printf("Warning: Cannot allocate 0 bytes. Returning NULL.\n");
+        //debug
+        // printf("Warning: Cannot allocate 0 bytes.\n");
         return (char*)head + sizeof(mem_struct);
     }
 
@@ -55,13 +59,13 @@ void *mem_alloc(size_t size) {
                 new_block->next = current->next;
                 new_block->available = true;
                 new_block->size = current->size - size; // Remaining memory
-                
+
                 // Set the memory address of the new block
                 new_block->memaddress = (char *)new_block + sizeof(mem_struct);
 
                 // Update the current block's metadata
                 current->next = new_block;
-                current->size = size;  // Set current block to requested size
+                current->size = size;  
             }
 
             current->available = false; // Mark the current block as unavailable
@@ -100,31 +104,38 @@ void mem_free(void* block) {
 
     mem_struct *current = head;
 
+    // Traverse the linked list 
     while (current != NULL) {
+        // Check if the requested block is the current block
         if (current->memaddress == block) {
             if (!current->available) {
+                // Free the block
                 current->available = true;
                 coalesce_free_blocks();
                 return;
             } else {
-                printf("Error: Block at address %p is already free.\n", block);
+                //debug
+                // printf("Error: Block at address %p is already free.\n", block);
                 return;
             }
         }
+        // Go to the next block
         current = current->next;
     }
-
-    printf("Error: Block at address %p not found.\n", block);
+    //debug
+    // printf("Error: Block at address %p not found.\n", block);
 }
 
 
 
 void* mem_resize(void* block, size_t size) {
+    // If block dosen't exist create it
     if (block == NULL) {
         return mem_alloc(size);
     }
     mem_struct * current = head;
 
+    // Traverse the linked list 
     while (current != NULL){
 
         if (current->size >= size) {
@@ -148,7 +159,8 @@ void* mem_resize(void* block, size_t size) {
             // Otherwise, allocate a new block with the requested size
             void *new_block = mem_alloc(size);
             if (new_block == NULL) {
-                printf("Error: Unable to allocate memory for resizing.\n");
+                //debug
+                // printf("Error: Unable to allocate memory for resizing.\n");
                 return NULL;
             }
 
@@ -161,23 +173,28 @@ void* mem_resize(void* block, size_t size) {
             // Return the new block address
             return new_block;
         }
+        // Go to next block
         current = current->next;
     }
 
     // If we reach here, the block was not found
-    printf("Error: Block not found for resizing.\n");
+    //debug
+    // printf("Error: Block not found for resizing.\n");
     return NULL;
 }
 
 void mem_deinit() {
+    // Check if linked list exist
     if (head == NULL) {
-        printf("Memory manager is already deinitialized or not initialized.\n");
+        //debug
+        // printf("Memory manager is already deinitialized or not initialized.\n");
         return;
     }
 
     free(head);
 
     head = NULL;
-    printf("Memory pool deinitialized and freed.\n");
+    //debug
+    // printf("Memory pool deinitialized and freed.\n");
 }
 

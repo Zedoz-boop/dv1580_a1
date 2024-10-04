@@ -39,10 +39,8 @@ void test_zero_alloc_and_free()
     printf_yellow("  Testing mem_alloc(0) and mem_free --->");
     mem_init(1024);
     void *block1 = mem_alloc(0);
-    printf("%d hej 1",block1);
     my_assert(block1 != NULL);
     void *block2 = mem_alloc(200);
-    printf("%d hej 2", block2);
     my_assert(block2 != NULL);
     my_assert(block1 == block2);
 
